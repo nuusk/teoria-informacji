@@ -38,12 +38,7 @@ for (let j=0; j<20; j++) {
     else if (sum < 26.5) s260++;
     else if (sum < 27) s265++;
     else if (sum < 27.5) s270++;
-    
-    // if (sum < 53.5) s530++;
-    // else if (sum < 54) s535++;
-    // else if (sum < 54.5) s540++;
-    // else if (sum < 55) s545++;
-    // else if (sum < 55.5) s550++;
+
 }
 
 
