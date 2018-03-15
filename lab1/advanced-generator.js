@@ -1,3 +1,14 @@
+/*
+3 Przybliżenie pierwszego rzędu △ Treść
+Używając wyliczonych prawdopodobieństw w poprzednim zadaniu, wygene- ruj nowy ciąg znaków – będzie to przybliżenie pierwszego rzędu.
+Jaka jest średnia długość słowa w tym przybliżeniu? Czy jest ona zbliżona do faktycznej średniej tego korpusu?
+*/
+
+
+const path = require('path');
+require('dotenv').config({path: path.join(__dirname, "../.env")});
+const plotly = require('plotly')(process.env.PLOTLY_USERNAME, process.env.PLOTLY_API_KEY);
+
 const LIMIT = 30000;
 const fs = require('fs');
 let input = fs.readFileSync('./romeo.txt', 'utf8').split('\n')[0];
