@@ -88,7 +88,8 @@ while (ORDER <= MAX_ORDER) {
       // console.log(`nextLetterProbability: ${nextLetterProbability}`);
 
       // prawdopobobienstwo laczne X i Y to iloczyn prawd. zajscia zdarzenia X i prawd. zajscia zdarzenia Y
-      let combinedProbability = stateProbability * nextLetterProbability;
+      // let combinedProbability = stateProbability * nextLetterProbability;
+      let combinedProbability = chain[state][nextLetter] / numberOfGrams;
       // console.log(`combinedProbability: ${combinedProbability}`);
 
       // prawdopobobienstwo warunkowe wyliczamy na podstawie wyznaczonych wczesniej w obiekcie chain wartosci
