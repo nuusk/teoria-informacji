@@ -13,26 +13,23 @@ Korzystając z zaobserwowanych wartości entropii warunkowej odpowiedź na py
 
 // poczatkowy rzad wyliczanej entropii (bedzie sie zwiekszal az do maksymalnej wartosci)
 // rzad wiekszy od 0 to entropia warunkowa - czyli rozpatrujemy odpowiednia ilosc poprzednich stanow (liter badz slow)
-let ORDER = 1;
+let ORDER = 0;
 const MAX_ORDER = 5;
 const LANGUAGE = 'en'; // opcje do wyboru : [en, eo, et, ht, la, nv, so]
-const MARKOV_STRATEGY = 'words'
-// const MARKOV_STRATEGY = 'letters'
+// const MARKOV_STRATEGY = 'words'
+const MARKOV_STRATEGY = 'letters'
 
 const fs = require('fs');
 let input = fs.readFileSync(`./data/norm_wiki_${LANGUAGE}.txt`, 'utf8').split('\n')[0];
-let english = "abcdefghijklmnopqrstuvwxyz1234567890 ".split("");
-
-// dane do lancucha markova. tabelka zawierajaca odpowiednie stany i mozliwosci przejscia do kolejnego stanu
-let chain = {};
-
-// zliczamy je tylko raz. tj. przy pierwszej iteracji petli (dla rzedu == ORDER.)
-let alreadyCountered = false;
 
 let grams = MARKOV_STRATEGY == 'letters'? input.split('') : input.split(' ');
 while (ORDER <= MAX_ORDER) {
+  // dane do lancucha markova. tabelka zawierajaca odpowiednie stany i mozliwosci przejscia do kolejnego stanu
+  let chain = {};
+
   // obiekt zawierajacy liczbe wystapien kazdej litery. potrzebne do wyliczenia prawdopobienstwa wystapienia liter niezaleznie od aktualnego stanu
   let counter = {};
+
   for (let i=0; i<grams.length-1-ORDER; i++) {
     let currentGram = '';
     for (let j=0; j<ORDER; j++) {
@@ -46,8 +43,10 @@ while (ORDER <= MAX_ORDER) {
         }
       }    
     }
-    let nextLetter = grams[i+ORDER];
-    // console.log(`${currentGram} -> ${nextLetter}`);
+
+    let nextGram = grams[i+ORDER];
+    // console.log(`${currentGram} -> ${nextGram}`);
+
     // jeśli taki stan jeszcze nie jest zainicjowany w strukturze to go inicjujemy
     if (!chain[currentGram]) {
       chain[currentGram] = {};
@@ -55,77 +54,81 @@ while (ORDER <= MAX_ORDER) {
         enumerable: false,
         writable: true
       });
-      chain[currentGram][nextLetter] = 1;
+      'ala ma kota i ala ma psa'
+      'ala'
+      chain[currentGram][nextGram] = 1;
       chain[currentGram]["!counter"] = 1;
     } else {
-      if (!chain[currentGram][nextLetter]) {
-        chain[currentGram][nextLetter] = 1;
+      if (!chain[currentGram][nextGram]) {
+        chain[currentGram][nextGram] = 1;
         chain[currentGram]["!counter"]++;
       } else {
-        chain[currentGram][nextLetter]++;
+        chain[currentGram][nextGram]++;
         chain[currentGram]["!counter"]++;
       }
     }
-    if (!chain[currentGram][nextLetter]) {
-      chain[currentGram][nextLetter] = 1;
+    if (!chain[currentGram][nextGram]) {
+      chain[currentGram][nextGram] = 1;
     }
     
     
     // inkrementujemy rowniez liczbe nastepnej litery. potrzebne do wyliczenia prawdopobobienstwa zadanej litery
-    if (!counter[nextLetter]) {
-      counter[nextLetter] = 1;
+    if (!counter[nextGram]) {
+      counter[nextGram] = 1;
     } else {
-      counter[nextLetter]++;  
+      counter[nextGram]++;  
     }
   };
   
   // liczenie entropii. zgodnie ze wzorem (jesli ORDER>0, to wzor na entropie warunkowa)
   let currentSum = 0
 
-  // lacznie rozpatrujemy grams.length -1 -ORDER stanow. bedzie to przydatne do obliczenia prawdopobobienstwa zajscia zdarzenia losowego X (tj. konkretnego n-gramu)
-  let numberOfGrams = grams.length - 1 - ORDER;  
+  // lacznie rozpatrujemy grams.length -ORDER stanow. bedzie to przydatne do obliczenia prawdopobobienstwa zajscia zdarzenia losowego X (tj. konkretnego n-gramu)
+  let numberOfGrams = grams.length - ORDER;  
   
   for (state in chain) {
     // w tym momencie rozpatrujemy tylko stany o dlugosci rownej aktualnemu ORDEROWI. poprzednie stany juz rozpatrzelismy w poprzedniej iteracji
-    if (MARKOV_STRATEGY=='letters' && state.length != ORDER) continue;
-    if (MARKOV_STRATEGY=='words' && state.split(' ').length != ORDER) continue;
+    // if (MARKOV_STRATEGY=='letters' && state.length != ORDER) continue;
+    // if (MARKOV_STRATEGY=='words' && state.split(' ').length != ORDER) continue;
 
     // prawdopobobiestwo danego stanu to iloraz tego ile razy ten stan wystapil przez liczbe wszystkich stanow
     let stateProbability = chain[state]["!counter"] / numberOfGrams;
-    for (nextLetter in chain[state]) {
+    for (nextGram in chain[state]) {
       // prawdopobobienstwo zajscia nastpenej litery niezaleznie od aktualnego stanu
-      let nextLetterProbability = counter[nextLetter] / numberOfGrams;
-      if (!nextLetterProbability) {
-        console.log(`cos nie gra z ${nextLetter} w stanie ${state}`);
+      let nextGramProbability = counter[nextGram] / numberOfGrams;
+      if (!nextGramProbability) {
+        console.log(`cos nie gra z ${nextGram} w stanie ${state}`);
       }
-      // console.log(`nextLetterProbability: ${nextLetterProbability}`);
+      // console.log(`nextGramProbability: ${nextGramProbability}`);
 
       // prawdopobobienstwo laczne X i Y to iloczyn prawd. zajscia zdarzenia X i prawd. zajscia zdarzenia Y
-      // let combinedProbability = stateProbability * nextLetterProbability;
-      let combinedProbability = chain[state][nextLetter] / numberOfGrams;
+      // let combinedProbability = stateProbability * nextGramProbability;
+      // sumujemy countery dla kazdego state
+
+      let combinedProbability = chain[state][nextGram] / numberOfGrams;
       // console.log(`combinedProbability: ${combinedProbability}`);
 
       // prawdopobobienstwo warunkowe wyliczamy na podstawie wyznaczonych wczesniej w obiekcie chain wartosci
-      let conditionalProbability = chain[state][nextLetter] / chain[state]["!counter"];
+      let conditionalProbability = chain[state][nextGram] / chain[state]["!counter"];
       // console.log(`conditionalProbability: ${conditionalProbability}`);
   
       // ze wzoru, dodajemy do naliczanej sumy iloczyn prawd.lacznego i logarytmu(2) z prawd. warunkowego
       currentSum += combinedProbability * Math.log2(conditionalProbability);
       // console.log(`currentSum: ${currentSum}`);
       
-      if (conditionalProbability > 1 || combinedProbability >1 || stateProbability > 1 || nextLetterProbability > 1) {
+      if (conditionalProbability > 1 || combinedProbability >1 || stateProbability > 1 || nextGramProbability > 1) {
         console.log(`prof. weglarz nie bylby z ciebie dumny. popatrz co narobiles:`);
-        // console.log(`conditionalProbability: ${conditionalProbability}\n combinedProbability: ${combinedProbability}\n stateProbability: ${stateProbability}\n nextLetterProbability: ${nextLetterProbability}\n`);
+        // console.log(`conditionalProbability: ${conditionalProbability}\n combinedProbability: ${combinedProbability}\n stateProbability: ${stateProbability}\n nextGramProbability: ${nextGramProbability}\n`);
         console.log(`state: ${state}`);
-        console.log(`nextLetter: ${nextLetter}`);
+        console.log(`nextGram: ${nextGram}`);
         console.log(`chain:`);
         console.log(chain[state]);
         console.log('~~~~~~~~~~');
       }
 
-      // if (!conditionalProbability || !combinedProbability || !stateProbability || !nextLetterProbability) {
+      // if (!conditionalProbability || !combinedProbability || !stateProbability || !nextGramProbability) {
       //   console.log(`state: ${state}`);
-      //   console.log(`nextLetter: ${nextLetter}`);
+      //   console.log(`nextGram: ${nextGram}`);
       //   console.log(`chain:`);
       //   console.log(chain[state]);
       //   console.log('~~~~~~~~~~');
@@ -137,49 +140,6 @@ while (ORDER <= MAX_ORDER) {
   let entropy = currentSum * (-1);
 
   console.log(`Entropia warunkwa strategii ${MARKOV_STRATEGY} rzedu ${ORDER} dla jezyka ${LANGUAGE} wynosi ${entropy}.`);
-
-// probability.forEach(letterProbability => {
-//   // console.log(letterProbability);letterProbability
-//   currentSum += Math.log2(letterProbability)*letterProbability;
-// });
-
-// entropy = -currentSum;
-
-// console.log(`The entropy of this language is ${entropy}.`);
-
+  
   ORDER++;
 }
-
-
-// // ustawienie poczatkowego wyrazu
-// let outputText = STARTING_TEXT;
-// let currentWord;
-// for (let i=1; i<=NUM_WORDS; i++) {
-//   //aktualnie rozpatrywany wyraz to ostatni wyraz z aktualnie tworzonego zdania
-//   currentWord = outputText.split(' ')[i-1];
-//   let r = Math.floor(Math.random() * chain[currentWord]["!counter"]);  
-//   let nextWord;
-//   for (j in chain[currentWord]) {
-//       r -= chain[currentWord][j];
-//     if (r < 0) {
-//       r += chain[currentWord][j];
-//       nextWord = j;
-//       break;
-//     }
-//   }
-//   outputText += ' ' + nextWord;
-// }
-
-// console.log(outputText);
-// // Liczenie entropii
-
-// currentSum = 0;
-
-// probability.forEach(letterProbability => {
-//   // console.log(letterProbability);letterProbability
-//   currentSum += Math.log2(letterProbability)*letterProbability;
-// });
-
-// entropy = -currentSum;
-
-// console.log(`The entropy of this language is ${entropy}.`);
