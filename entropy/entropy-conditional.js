@@ -25,7 +25,7 @@ let data = [];
 let ORDER = 0;
 const MAX_ORDER = 5;
 const LANGUAGES = ['la', 'en', 'eo', 'et', 'ht', 'nv', 'so']; // opcje do wyboru : [en, eo, et, ht, la, nv, so]
-const SAMPLES = [0, 1, 2, 3, 4, 5]; // opcje do wyboru [0,1,2,3,4,5]
+const SAMPLES = [1, 2, 3, 4, 5, 6]; // opcje do wyboru [1,2,3,4,5, 6] (6 to jest to co bylo nazwane 0 na stronie)
 // const MARKOV_STRATEGY = 'words'
 const MARKOV_STRATEGY = 'letters'
 
@@ -33,12 +33,12 @@ const fs = require('fs');
 // let input = fs.readFileSync(`./data/norm_wiki_${LANGUAGE}.txt`, 'utf8').split('\n')[0];
 
 function calculateEntropy(markovStrategy, order, maxOrder, language=null, sample=null) {
-  console.log(sample);
   let textCorpus;
   if (language !== null) {
     textCorpus = fs.readFileSync(`./data/norm_wiki_${language}.txt`, 'utf-8').split('\n')[0];
   }
   else if (sample !== null) {
+    console.log(sample);
     textCorpus = fs.readFileSync(`./data/sample${sample}.txt`, 'utf-8').split('\n')[0];
   }
 
@@ -169,12 +169,14 @@ function calculateEntropy(markovStrategy, order, maxOrder, language=null, sample
   });
 }
 
-// LANGUAGES.forEach(LANGUAGE => {
-//   calculateEntropy(MARKOV_STRATEGY, ORDER, MAX_ORDER, language=LANGUAGE);
-// });
-SAMPLES.forEach(SAMPLE => {
-  calculateEntropy(MARKOV_STRATEGY, ORDER, MAX_ORDER, language=null, sample=SAMPLE);  
+// wybierz jedno z dwoch opcji (LANGUAGES / SAMPLES)
+
+LANGUAGES.forEach(LANGUAGE => {
+  calculateEntropy(MARKOV_STRATEGY, ORDER, MAX_ORDER, language=LANGUAGE);
 });
+// SAMPLES.forEach(SAMPLE => {
+  // calculateEntropy(MARKOV_STRATEGY, ORDER, MAX_ORDER, language=null, sample=SAMPLE);  
+// });
 
 const layout = {
   title: "Entropy samples",
