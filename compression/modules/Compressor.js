@@ -57,6 +57,35 @@ class Compressor {
     this.BYTES = bytes;
   }
 
+
+  SAVE(encodefileName, codeFileName) {
+    this.SAVE_CODE(codeFileName);
+    console.log(`Saved coded file to [${codeFileName}].`);
+    this.SAVE_ENCODED(encodefileName);
+    console.log(`Saved encoded file to [${encodefileName}].\n`);
+  }
+
+  LOAD(encodedFileName, codeFileName) {
+    this.GET_CODE(codeFileName);
+    this.GET_BYTES(encodedFileName);
+  }
+
+  SAVE_CODE(fileName) {
+    let code = '';
+    for (let key in this.CODE) {
+      code += `${key}:${this.CODE[key].toString()}\n`;
+    }
+    fs.writeFileSync(fileName, code);
+  }
+
+  SAVE_DECODED(fileName, text) {
+    fs.writeFileSync(fileName, text);
+  }
+
+  SAVE_ENCODED(fileName) {
+    fs.writeFileSync(fileName, new Buffer(this.BYTES));
+  }
+
   create(inputFilePath) {
     const inputText = fs.readFileSync(inputFilePath, 'utf8').split('\n')[0];
     const letters = inputText.split('');
@@ -173,39 +202,9 @@ class Compressor {
       // console.log(decoded);
     }
 
-    this._saveDecoded('DECODED', decoded);
+    this.SAVE_DECODED('DECODED', decoded);
     console.log(`Saved decoded file to [DECODED].\n`);
   }
-
-  save(encodefileName, codeFileName) {
-    this._saveCode(codeFileName);
-    console.log(`Saved coded file to [${codeFileName}].`);
-    this._saveEncoded(encodefileName);
-    console.log(`Saved encoded file to [${encodefileName}].\n`);
-  }
-
-  load(encodedFileName, codeFileName) {
-    this.GET_CODE(codeFileName);
-    this.GET_BYTES(encodedFileName);
-  }
-
-  _saveCode(fileName) {
-    let code = '';
-    for (let key in this.CODE) {
-      code += `${key}:${this.CODE[key].toString()}\n`;
-    }
-    fs.writeFileSync(fileName, code);
-  }
-
-  _saveDecoded(fileName, text) {
-    fs.writeFileSync(fileName, text);
-  }
-
-  _saveEncoded(fileName) {
-    fs.writeFileSync(fileName, new Buffer(this.BYTES));
-  }
-
-
 
 }
 

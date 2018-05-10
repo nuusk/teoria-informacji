@@ -11,7 +11,7 @@ const DECODED_NAME = 'DECODED';
 compressor.create(testFile);
 // console.log(compressor._code);
 compressor.encode(testFile);
-compressor.save(ENCODE_NAME, CODE_NAME);
+compressor.SAVE(ENCODE_NAME, CODE_NAME);
 
-compressor.load(ENCODE_NAME, CODE_NAME);
+compressor.LOAD(ENCODE_NAME, CODE_NAME);
 compressor.decode();
