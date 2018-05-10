@@ -124,6 +124,7 @@ class Compressor {
     // dla kazdego klucza w kodzie tworzymy nowa wartosc (ciag 0 i 1)
     sortedCounter.forEach((element, index) => {
       this.CODE[element.char] = new BitArray(this.CODE.size, index);
+      // console.log(this.CODE[element.char]);
     });
   }
 
